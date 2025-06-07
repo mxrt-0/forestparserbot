@@ -1,16 +1,18 @@
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import final
+from typing import ClassVar, final
 
 
 @final
 class Settings(BaseSettings):
+    main_env: ClassVar = ".dev.env"
+    fallback_env: ClassVar = ".prod.env"
     model_config = SettingsConfigDict(
-        env_file=(".prod.env", "dev.dev"), env_file_encoding="utf-8"
+        env_file=(fallback_env, main_env), env_file_encoding="utf-8"
     )
 
     BOT_TOKEN: str
-    SECRET_BOT_TOKEN: str
+    BOT_SECRET_TOKEN: str
     CRYPTOBOT_TOKEN: str
     CRYPTOTESTNETBOT_TOKEN: str
     BASE_URL: str

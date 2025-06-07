@@ -4,7 +4,7 @@ from aiogram.filters import CommandStart
 
 from bot.bot import router
 from bot.settings import get_settings
-from bot.keyboards.inline import *
+from bot.keyboards.inline import menu_kb, admin_menu_kb
 
 cfg = get_settings()
 

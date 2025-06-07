@@ -1,7 +1,8 @@
+from aiogram.filters import callback_data
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from bot.API.CryptoBotAPI import create_invoice, invoice_status
+from bot.API.CryptobotAPI import create_invoice, invoice_status
 from bot.settings import get_settings
 
 cfg = get_settings()
@@ -35,8 +36,8 @@ def menu_kb():
     inline_keyboard = [
         [InlineKeyboardButton(text="🕸️ Парсер", callback_data="parser")],
         [InlineKeyboardButton(text="💰 Пополнить баланс", callback_data="charge_balance")],
-        [InlineKeyboardButton(text="📰 Новостник", url=NEWS)
-        [InlineKeyboardButton(text="🆘 Поддержка", url=SUPPORT)
+        [InlineKeyboardButton(text="📰 Новостник", url=NEWS)],
+        [InlineKeyboardButton(text="🆘 Поддержка", url=SUPPORT)]
     ]
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
@@ -45,10 +46,60 @@ def admin_menu_kb():
     inline_keyboard = [
         [InlineKeyboardButton(text="🕸️ Парсер", callback_data="parser")],
         [InlineKeyboardButton(text="💰 Пополнить баланс", callback_data="charge_balance")],
-        [InlineKeyboardButton(text="📰 Новостник", url=f"{NEWS['2']['url']}")],
-        [InlineKeyboardButton(text="🆘 Поддержка", url=f"{SUPPORT}")],
+        [InlineKeyboardButton(text="📰 Новостник", url=NEWS)],
+        [InlineKeyboardButton(text="🆘 Поддержка", url=SUPPORT)],
         [InlineKeyboardButton(text="📊 Панель управления", callback_data="admin_panel")]
+    ]
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+
+
+def choose_direction_kb():
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(
+                text="1.0",
+                callback_data="first_direction"
+            ),
+            InlineKeyboardButton(
+                text="2.0",
+                callback_data="second_direction")
+        ],
+        [InlineKeyboardButton(text="🏠 Вернуться в меню",  callback_data="menu")]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+
+
+def first_direction_kb():
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(
+                text="kleinanzeigen.de",
+                callback_data="kl1"
+            )
+        ],
+        [InlineKeyboardButton(
+            text="🔙 Вернуться назад", callback_data="choose_direction"
+        )],
+        [InlineKeyboardButton(text="🏠 Вернуться в меню", callback_data="menu")]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+
+
+def second_direction_kb():
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(
+                text="kleinanzeigen.de",
+                callback_data="kl1"
+            )
+        ],
+        [InlineKeyboardButton(
+            text="🔙 Вернуться назад", callback_data="choose_direction"
+        )],
+        [InlineKeyboardButton(text="🏠 Вернуться в меню", callback_data="menu")]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+
 
 
 def charge_balance_kb():
@@ -68,90 +119,30 @@ def charge_balance_kb():
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
 
-def choose_receipts_kb():
-    inline_keyboard = [
-        [InlineKeyboardButton(text="🇩🇪  Amazon.de", callback_data="amazonde")],
-        [InlineKeyboardButton(text="🇩🇪  MediaMarkt.de", callback_data="mediamarkt")],
-        [InlineKeyboardButton(text="🏠 Вернуться в меню", callback_data="menu")],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-
-
-def choose_docs_kb():
-    inline_keyboard = [
-        [InlineKeyboardButton(text="🇩🇪  Удостоверение личности", callback_data="gic")],
-        [InlineKeyboardButton(text="🏠 Вернуться в меню", callback_data="menu")],
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-
-
-def mm_menu_kb(data):
-    from app.fsm.receipts.mediamarkt import buttons
+def kl1_menu_kb(data):
+    from bot.states.kl1 import buttons
     builder = InlineKeyboardBuilder()
     for i in range(1, len(buttons) + 1):
         text, callback_data, key = buttons[i]
         value = data.get(key)
         builder.button(
-            text="🟢" + text if value else "🔴" + text,
+            text=text,
             callback_data=callback_data
         )
-    builder.button(text="🔙 Вернуться назад", callback_data="receipts")
+    builder.button(text="🔙 Вернуться назад", callback_data="kl1")
     builder.button(text="🏠 Вернуться в меню", callback_data="menu")
-    builder.button(text="✅ Оплатить и создать", callback_data="mm_payment_request")
-    rows = (2, 2, 1, 1, 1, 1, 2, 2, 2)
+    rows = ()
     builder.adjust(*rows, 1, 1, 1)
 
     return InlineKeyboardMarkup(inline_keyboard=builder.export())
 
 
-def back_to_mm_kb():
+def back_to_kl1_kb():
     inline_keyboard = [
-        [InlineKeyboardButton(text="🔙 Вернуться назад", callback_data="mediamarkt")]
+        [InlineKeyboardButton(text="🔙 Вернуться назад", callback_data="kl1")]
     ]
     return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
-
-def receipt_quantity_kb(prefix):
-    inline_keyboard = [
-        [InlineKeyboardButton(text="1", callback_data=f"{prefix}_quantity_1")],
-        [
-            InlineKeyboardButton(
-                text="🔙 Вернуться назад",
-                callback_data=(
-                    "mediamarkt" if prefix == "mm"
-                    else "amazonde" if prefix == "ad"
-                    else None
-                )
-            )
-        ]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-
-
-def generate_number_kb(receipt, prefix):
-    inline_keyboard = [
-        [InlineKeyboardButton(
-            text="Сгенерировать случайный",
-            callback_data=f"{receipt}_generate_{prefix}_number"),
-        ],
-        [InlineKeyboardButton(
-            text="🔙 Вернуться назад",
-            callback_data=(
-                "mediamarkt" if receipt == "mm"
-                else "amazonde" if receipt == "ad"
-                else None
-            )
-        )]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-
-
-def mm_payment_method_kb():
-    inline_keyboard = [
-        [InlineKeyboardButton(text="PayPal", callback_data=f"mm_payment_method_PayPal")],
-        [InlineKeyboardButton(text="🔙 Вернуться назад", callback_data="mediamarkt")]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
 
 def ad_menu_kb(data):

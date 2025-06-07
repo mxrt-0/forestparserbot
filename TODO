@@ -1,0 +1,8 @@
+1) Fully rewrite main kleinanzeigen 1.0 scrapper logic, add new features:
+- More custom settings
+- Individual scrapper sessions
+- Change configuration window
+2) Add kleinanzeigen 2.0 scrapper
+3) Implement Redis storage and redis strategies in mix with maib database
+4) Rewrite bot's database queries with sqlalchemy utility
+

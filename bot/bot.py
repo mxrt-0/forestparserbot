@@ -28,14 +28,14 @@ async def get_commands(cc: str) -> list[BotCommand]:
 
 
 async def set_bot_commands() -> None:
-    await bot.set_my_commands(get_commands(cc="ru"), language_code="ru")
-    await bot.set_my_commands(get_commands(cc="en"), language_code="en")
+    await bot.set_my_commands(await get_commands(cc="ru"), language_code="ru")
+    await bot.set_my_commands(await get_commands(cc="en"), language_code="en")
 
 
 async def set_webhook() -> None:
     await bot.set_webhook(
-        url=f"{cfg.BASE_URL}{cfg.WEBHOOK_TGBOT_PATH}",
-        secret_token=cfg.SECRET_BOT_TOKEN,
+        url=f"{cfg.BASE_URL}{cfg.WEBHOOK_BOT_PATH}",
+        secret_token=cfg.BOT_SECRET_TOKEN,
         allowed_updates=dp.resolve_used_update_types(),
         drop_pending_updates=True,
     )
@@ -57,9 +57,9 @@ async def on_startup_notify() -> None:
 
 
 async def start_bot() -> None:
+    await on_startup_notify()
     await set_webhook()
     await set_bot_commands()
-    await on_startup_notify()
 
 
 async def on_shutdown_notify() -> None:
